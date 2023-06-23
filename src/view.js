@@ -1,6 +1,5 @@
 /* eslint no-param-reassign: ["error", { "props": false }] */
 const renderError = (watchedState, elements, value, i18nInstance) => {
-  console.log(watchedState);
   if (value !== '') {
     elements.feedback.textContent = i18nInstance.t(`errors.${watchedState.error}`);
   }
