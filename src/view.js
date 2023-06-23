@@ -1,7 +1,18 @@
-const renderError = (elements, value) => {
+/* eslint no-param-reassign: ["error", { "props": false }] */
+const renderError = (watchedState, elements, value, i18nInstance) => {
+  console.log(watchedState);
+  if (value !== '') {
+    elements.feedback.textContent = i18nInstance.t(`errors.${watchedState.error}`);
+  }
+};
+
+const renderForm = (watchedState, elements, value) => {
   switch (value) {
     case 'processing':
       elements.input.classList.remove('is-invalid');
+      elements.feedback.textContent = '';
+      elements.form.reset();
+      elements.input.focus();
       break;
 
     case 'error':
@@ -15,28 +26,24 @@ const renderError = (elements, value) => {
 
 // const renderPosts = () => {};
 
-// const renderForm = () => {};
+// const renderFeeds = () => {};
 
-const render = (watchedState, elements) => (path, value) => {
+const render = (watchedState, elements, i18nInstance) => (path, value) => {
   switch (path) {
     case 'formState':
-      renderError(elements, value);
-      break;
-
-    case 'valid':
-      // renderError(watchedState, elements, value, path);
+      renderForm(watchedState, elements, value);
       break;
 
     case 'error':
-      // renderError(watchedState, elements, value, path);
+      renderError(watchedState, elements, value, i18nInstance);
       break;
 
     case 'posts':
-      // renderError(watchedState, elements, value, path);
+      // renderPosts(watchedState, elements, value, path);
       break;
 
     case 'feeds':
-      // renderError(watchedState, elements, value, path);
+      // renderFeeds(watchedState, elements, value, path);
       break;
 
     default:
