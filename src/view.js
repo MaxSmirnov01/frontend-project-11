@@ -1,29 +1,46 @@
-const render = (watchedState, path, value, elements) => {
-  // console.log(path, 'path!!');
-  // console.log(value, 'value!!');
-  const renderError = () => {
-    if (watchedState.valid === false) {
-      elements.input.classList.add('is-invalid');
-    } else {
+const renderError = (elements, value) => {
+  switch (value) {
+    case 'processing':
       elements.input.classList.remove('is-invalid');
-    }
-  };
-  // const renderPosts = () => {
-  // };
-  // const renderForm = () => {
-  // };
-
-  switch (watchedState.formState) {
-    case 'filling':
-      // renderError();
       break;
 
     case 'error':
-      renderError();
+      elements.input.classList.add('is-invalid');
       break;
 
     default:
       break;
+  }
+};
+
+// const renderPosts = () => {};
+
+// const renderForm = () => {};
+
+const render = (watchedState, elements) => (path, value) => {
+  switch (path) {
+    case 'formState':
+      renderError(elements, value);
+      break;
+
+    case 'valid':
+      // renderError(watchedState, elements, value, path);
+      break;
+
+    case 'error':
+      // renderError(watchedState, elements, value, path);
+      break;
+
+    case 'posts':
+      // renderError(watchedState, elements, value, path);
+      break;
+
+    case 'feeds':
+      // renderError(watchedState, elements, value, path);
+      break;
+
+    default:
+      throw new Error('Unknown state', path);
   }
 };
 

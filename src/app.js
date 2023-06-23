@@ -21,11 +21,7 @@ const app = () => {
     button: document.querySelector('.btn'),
   };
 
-  const watchedState = onChange(state, (path, value) => {
-    console.log(path, 'path!!');
-    console.log(value, 'value!!');
-    render(watchedState, path, value, elements);
-  });
+  const watchedState = onChange(state, render(state, elements));
 
   elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -36,17 +32,18 @@ const app = () => {
       .validate(url)
       .then((data) => {
         console.log('validation was successful', data);
-        // watchedState.error = null;
-        watchedState.valid = true;
         watchedState.feeds.push(url);
+        // watchedState.error = null;
+        // watchedState.valid = true;
+        watchedState.formState = 'processing';
         elements.form.reset();
         elements.input.focus();
       })
       .catch((error) => {
         console.log('validation failed', error);
         // watchedState.error = error;
+        // watchedState.valid = false;
         watchedState.formState = 'error';
-        watchedState.valid = false;
       });
   });
 };
