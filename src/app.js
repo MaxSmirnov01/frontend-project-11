@@ -16,14 +16,7 @@ yup.setLocale({
   },
 });
 
-const schema = (feeds) => yup.string().trim().url().notOneOf(feeds);
-
-const makeRequest = (url) => {
-  axios
-    .get(url)
-    .then((response) => console.log(response))
-    .catch((er) => console.log(er));
-};
+const schema = (urls) => yup.string().trim().url().notOneOf(urls);
 
 const app = () => {
   const i18nInstance = i18n.createInstance();
@@ -42,6 +35,7 @@ const app = () => {
         error: '',
         posts: [], // posts: [{ fidId: '' }]
         feeds: [],
+        urls: [],
       };
 
       const elements = {
@@ -49,26 +43,40 @@ const app = () => {
         input: document.getElementById('url-input'),
         button: document.querySelector('.btn'),
         feedback: document.querySelector('.feedback'),
+        posts: document.querySelector('.posts'),
+        feeds: document.querySelector('.feeds'),
       };
 
       const watchedState = onChange(state, render(state, elements, i18nInstance));
+
+      const makeRequest = (url) => {
+        const link = `https://allorigins.hexlet.app/get?url=${encodeURIComponent(url)}`;
+        axios
+          .get(link)
+          .then((response) => {
+            const { feed, posts } = parse(response.data.contents);
+            watchedState.feeds.push(feed);
+            watchedState.posts.push(posts);
+          })
+          .catch((er) => console.log(er));
+      };
 
       elements.form.addEventListener('submit', (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
         const url = formData.get('url');
 
-        schema(watchedState.feeds)
+        schema(watchedState.urls)
           .validate(url)
           .then(() => {
-            const response = makeRequest(url);
-            console.log(response);
-            const document = parse(response);
-            // console.log(document);
-            watchedState.feeds.push(url);
+            watchedState.urls.push(url);
             watchedState.error = '';
             // watchedState.valid = true;
             watchedState.formState = 'processing';
+          })
+          .then(() => {
+            makeRequest(url);
+            watchedState.formState = 'finished';
           })
           .catch((error) => {
             watchedState.error = error.message;

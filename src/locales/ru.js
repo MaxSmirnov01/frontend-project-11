@@ -6,5 +6,8 @@ export default {
       notRSS: 'Ресурс не содержит валидный RSS',
     },
     validUrl: 'RSS успешно загружен',
+    posts: 'Посты',
+    feeds: 'Фиды',
+    button: 'Просмотр',
   },
 };
