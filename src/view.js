@@ -6,26 +6,24 @@ const renderError = (elements, value, i18nInstance) => {
 };
 
 const renderForm = (elements, value, i18nInstance) => {
-  console.log(value);
   switch (value) {
     case 'processing':
       elements.input.classList.remove('is-invalid');
-      elements.feedback.classList.remove('text-dander');
-      // elements.feedback.classList.remove('text-success');
+      elements.feedback.classList.remove('text-danger');
       elements.feedback.textContent = '';
       elements.form.reset();
       elements.input.focus();
       break;
 
     case 'finished':
-      elements.feedback.classList.remove('text-dander');
+      elements.feedback.classList.remove('text-danger');
       elements.feedback.classList.add('text-success');
       elements.feedback.textContent = i18nInstance.t('validUrl');
       break;
 
     case 'error':
       elements.input.classList.add('is-invalid');
-      elements.feedback.classList.add('text-dander');
+      elements.feedback.classList.add('text-danger');
       break;
 
     default:
@@ -58,14 +56,14 @@ const renderPosts = (elements, value, i18nInstance) => {
       );
       const a = document.createElement('a');
       a.setAttribute('href', post.link);
-      // a.setAttribute('data-id')
+      a.setAttribute('data-id', post.id);
       a.classList.add('fw-bold');
       a.setAttribute('target', '_blank');
       a.setAttribute('rel', 'noopener noreferrer');
       a.textContent = post.title;
       const button = document.createElement('button');
       button.setAttribute('type', 'button');
-      // button.setAttribute('data-id')
+      button.setAttribute('data-id', post.id);
       button.setAttribute('data-bs-toggle', 'modal');
       button.setAttribute('data-bs-target', '#modal');
       button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
@@ -111,7 +109,6 @@ const renderFeeds = (elements, value, i18nInstance) => {
 };
 
 const render = (watchedState, elements, i18nInstance) => (path, value) => {
-  // console.log(watchedState);
   switch (path) {
     case 'formState':
       renderForm(elements, value, i18nInstance);

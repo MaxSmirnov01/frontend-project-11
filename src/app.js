@@ -2,6 +2,7 @@ import * as yup from 'yup';
 import onChange from 'on-change';
 import i18n from 'i18next';
 import axios from 'axios';
+import _ from 'lodash';
 import render from './view.js';
 import ru from './locales/ru.js';
 import parse from './parser.js';
@@ -50,13 +51,15 @@ const app = () => {
       const watchedState = onChange(state, render(state, elements, i18nInstance));
 
       const makeRequest = (url) => {
-        const link = `https://allorigins.hexlet.app/get?url=${encodeURIComponent(url)}`;
+        const link = `https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`;
         axios
           .get(link)
           .then((response) => {
             const { feed, posts } = parse(response.data.contents);
+            feed.id = _.uniqueId();
+            const postId = posts.map((post) => ({ ...post, fidId: feed.id, id: _.uniqueId() }));
             watchedState.feeds.push(feed);
-            watchedState.posts.push(posts);
+            watchedState.posts.push(postId);
           })
           .catch((er) => console.log(er));
       };
