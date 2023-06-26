@@ -69,7 +69,7 @@ const renderPosts = (elements, value, i18nInstance) => {
       button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
       button.textContent = i18nInstance.t('button');
       li.append(a, button);
-      ul.append(li);
+      ul.prepend(li);
     });
   });
 
@@ -96,11 +96,11 @@ const renderFeeds = (elements, value, i18nInstance) => {
     const title = document.createElement('h3');
     title.classList.add('h6', 'm-0');
     title.textContent = feed.title;
-    const description = document.querySelector('p');
+    const description = document.createElement('p');
     description.classList.add('m-0', 'small', 'text-black-50');
     description.textContent = feed.description;
     li.append(title, description);
-    ul.append(li);
+    ul.prepend(li);
   });
 
   cardBody.append(feedsTitle);

@@ -1,7 +1,10 @@
 const parse = (rss) => {
   const parser = new DOMParser();
   const data = parser.parseFromString(rss, 'application/xml');
-
+  const parserError = data.querySelector('parsererror');
+  if (parserError) {
+    throw new Error('parser error');
+  }
   const feed = {
     title: data.querySelector('title').textContent,
     description: data.querySelector('description').textContent,

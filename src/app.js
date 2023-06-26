@@ -31,10 +31,9 @@ const app = () => {
     })
     .then(() => {
       const state = {
-        // valid: false,
         formState: 'filling',
         error: '',
-        posts: [], // posts: [{ fidId: '' }]
+        posts: [],
         feeds: [],
         urls: [],
       };
@@ -52,16 +51,7 @@ const app = () => {
 
       const makeRequest = (url) => {
         const link = `https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`;
-        axios
-          .get(link)
-          .then((response) => {
-            const { feed, posts } = parse(response.data.contents);
-            feed.id = _.uniqueId();
-            const postId = posts.map((post) => ({ ...post, fidId: feed.id, id: _.uniqueId() }));
-            watchedState.feeds.push(feed);
-            watchedState.posts.push(postId);
-          })
-          .catch((er) => console.log(er));
+        return axios.get(link);
       };
 
       elements.form.addEventListener('submit', (e) => {
@@ -74,16 +64,23 @@ const app = () => {
           .then(() => {
             watchedState.urls.push(url);
             watchedState.error = '';
-            // watchedState.valid = true;
             watchedState.formState = 'processing';
+            return makeRequest(url);
           })
-          .then(() => {
-            makeRequest(url);
+          .then((response) => {
+            const { feed, posts } = parse(response.data.contents);
+            feed.id = _.uniqueId();
+            const postId = posts.map((post) => ({ ...post, fidId: feed.id, id: _.uniqueId() }));
+            watchedState.feeds.push(feed);
+            watchedState.posts.push(postId);
             watchedState.formState = 'finished';
           })
           .catch((error) => {
-            watchedState.error = error.message;
-            // watchedState.valid = false;
+            if (error.message === 'parser error') {
+              watchedState.error = 'notRSS';
+            } else {
+              watchedState.error = error.message;
+            }
             watchedState.formState = 'error';
           });
       });
