@@ -19,6 +19,31 @@ yup.setLocale({
 
 const schema = (urls) => yup.string().trim().url().notOneOf(urls);
 
+const makeRequest = (url) => {
+  const link = `https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`;
+  return axios.get(link);
+};
+
+const updatePosts = (watchedState, feedId) => {
+  watchedState.urls.forEach((url) => {
+    makeRequest(url)
+      .then((response) => {
+        const { posts } = parse(response.data.contents);
+        const postsLink = watchedState.posts.map((el) => el.map((post) => post.link));
+        const [arrOfLinks] = [...postsLink];
+        const newPosts = posts.filter(({ link }) => !arrOfLinks.includes(link));
+        // console.log(newPosts);
+        const newPostsId = newPosts.map((newPost) => ({ ...newPost, feedId, id: _.uniqueId() }));
+        // console.log(newPostsId);
+        watchedState.posts.unshift(...newPostsId);
+      })
+      .finally(() => setTimeout(() => updatePosts(watchedState, feedId), 5000))
+      .catch((er) => {
+        throw new Error(er);
+      });
+  });
+};
+
 const app = () => {
   const i18nInstance = i18n.createInstance();
   i18nInstance
@@ -49,11 +74,6 @@ const app = () => {
 
       const watchedState = onChange(state, render(state, elements, i18nInstance));
 
-      const makeRequest = (url) => {
-        const link = `https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`;
-        return axios.get(link);
-      };
-
       elements.form.addEventListener('submit', (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
@@ -70,10 +90,12 @@ const app = () => {
           .then((response) => {
             const { feed, posts } = parse(response.data.contents);
             feed.id = _.uniqueId();
-            const postId = posts.map((post) => ({ ...post, fidId: feed.id, id: _.uniqueId() }));
+            const feedId = feed.id;
+            const postId = posts.map((post) => ({ ...post, feedId, id: _.uniqueId() }));
             watchedState.feeds.push(feed);
             watchedState.posts.push(postId);
             watchedState.formState = 'finished';
+            updatePosts(watchedState, feedId);
           })
           .catch((error) => {
             if (error.message === 'parser error') {
