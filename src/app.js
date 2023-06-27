@@ -7,7 +7,6 @@ import render from './view.js';
 import ru from './locales/ru.js';
 import parse from './parser.js';
 
-/* eslint newline-per-chained-call: ["error", { "ignoreChainWithDepth": 5 }] */
 yup.setLocale({
   mixed: {
     notOneOf: 'existsRSS',
@@ -24,25 +23,22 @@ const makeRequest = (url) => {
   return axios.get(link);
 };
 
+/* eslint-disable */
 const updatePosts = (watchedState, feedId) => {
-  watchedState.urls.forEach((url) => {
-    makeRequest(url)
+  const promises = watchedState.urls.map((url) => {
+    return makeRequest(url)
       .then((response) => {
         const { posts } = parse(response.data.contents);
-        const postsLink = watchedState.posts.map((el) => el.map((post) => post.link));
-        const [arrOfLinks] = [...postsLink];
-        const newPosts = posts.filter(({ link }) => !arrOfLinks.includes(link));
-        // console.log(newPosts);
+        const postsLink = watchedState.posts.map((post) => post.link);
+        const newPosts = posts.filter(({ link }) => !postsLink.includes(link));
         const newPostsId = newPosts.map((newPost) => ({ ...newPost, feedId, id: _.uniqueId() }));
-        // console.log(newPostsId);
-        watchedState.posts.unshift(...newPostsId);
+        watchedState.posts.push(...newPostsId);
       })
-      .finally(() => setTimeout(() => updatePosts(watchedState, feedId), 5000))
-      .catch((er) => {
-        throw new Error(er);
-      });
+      .catch((er) => console.log(er));
   });
+  Promise.all(promises).finally(() => setTimeout(() => updatePosts(watchedState, feedId), 5000));
 };
+/* eslint-enable */
 
 const app = () => {
   const i18nInstance = i18n.createInstance();
@@ -91,9 +87,9 @@ const app = () => {
             const { feed, posts } = parse(response.data.contents);
             feed.id = _.uniqueId();
             const feedId = feed.id;
-            const postId = posts.map((post) => ({ ...post, feedId, id: _.uniqueId() }));
+            const postsId = posts.map((post) => ({ ...post, feedId, id: _.uniqueId() }));
             watchedState.feeds.push(feed);
-            watchedState.posts.push(postId);
+            watchedState.posts.push(...postsId);
             watchedState.formState = 'finished';
             updatePosts(watchedState, feedId);
           })
