@@ -101,13 +101,17 @@ const app = () => {
             updatePosts(watchedState, feedId);
           })
           .catch((error) => {
-            if (error.message === 'parser error') {
-              watchedState.error = 'notRSS';
-            }
-            if (error.message === 'network error') {
-              watchedState.error = 'networkError';
-            } else {
-              watchedState.error = error.message;
+            switch (error.message) {
+              case 'network error':
+                watchedState.error = 'networkError';
+                break;
+
+              case 'parser error':
+                watchedState.error = 'notRSS';
+                break;
+
+              default:
+                watchedState.error = error.message;
             }
             watchedState.formState = 'error';
           });
