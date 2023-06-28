@@ -31,7 +31,7 @@ const renderForm = (elements, value, i18nInstance) => {
   }
 };
 
-const renderPosts = (elements, value, i18nInstance) => {
+const renderPosts = (watchedState, elements, value, i18nInstance) => {
   elements.posts.innerHTML = '';
   const card = document.createElement('div');
   card.classList.add('card', 'border-0');
@@ -60,6 +60,15 @@ const renderPosts = (elements, value, i18nInstance) => {
     a.setAttribute('target', '_blank');
     a.setAttribute('rel', 'noopener noreferrer');
     a.textContent = post.title;
+
+    if (watchedState.uiState.selectedPosts.includes(post.id)) {
+      a.classList.remove('fw-bold');
+      a.classList.add('fw-normal', 'link-secondary');
+    } else {
+      a.classList.add('fw-bold');
+      a.classList.remove('fw-normal', 'link-secondary');
+    }
+
     const button = document.createElement('button');
     button.setAttribute('type', 'button');
     button.setAttribute('data-id', post.id);
@@ -119,15 +128,11 @@ const renderModal = (watchedState, elements, value) => {
   });
 };
 
-const renderLink = (watchedState, elements, value) => {
-  watchedState.posts.forEach(({ id }) => {
-    value.forEach((num) => {
-      if (id === num) {
-        const post = elements.posts.querySelector(`a[data-id='${num}']`);
-        post.classList.remove('fw-bold');
-        post.classList.add('fw-normal', 'link-secondary');
-      }
-    });
+const renderLink = (elements, value) => {
+  value.forEach((id) => {
+    const post = elements.posts.querySelector(`a[data-id='${id}']`);
+    post.classList.remove('fw-bold');
+    post.classList.add('fw-normal', 'link-secondary');
   });
 };
 
@@ -142,7 +147,7 @@ const render = (watchedState, elements, i18nInstance) => (path, value) => {
       break;
 
     case 'posts':
-      renderPosts(elements, value, i18nInstance);
+      renderPosts(watchedState, elements, value, i18nInstance);
       break;
 
     case 'feeds':
@@ -150,7 +155,7 @@ const render = (watchedState, elements, i18nInstance) => (path, value) => {
       break;
 
     case 'uiState.selectedPosts':
-      renderLink(watchedState, elements, value);
+      renderLink(elements, value);
       break;
 
     case 'uiState.selectedModal':

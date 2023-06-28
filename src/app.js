@@ -118,8 +118,10 @@ const app = () => {
       });
       elements.posts.addEventListener('click', (e) => {
         const { id } = e.target.dataset;
-        watchedState.uiState.selectedPosts.push(id);
-        watchedState.uiState.selectedModal = id;
+        if (id) {
+          watchedState.uiState.selectedPosts.push(id);
+          watchedState.uiState.selectedModal = id;
+        }
       });
     })
     .catch(() => {
