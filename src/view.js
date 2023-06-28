@@ -27,7 +27,7 @@ const renderForm = (elements, value, i18nInstance) => {
       break;
 
     default:
-      break;
+      throw new Error('Unknown value!', value);
   }
 };
 
@@ -106,6 +106,31 @@ const renderFeeds = (elements, value, i18nInstance) => {
   elements.feeds.append(card);
 };
 
+const renderModal = (watchedState, elements, value) => {
+  watchedState.posts.forEach((post) => {
+    if (post.id === value) {
+      const modalTitle = elements.modal.querySelector('.modal-title');
+      modalTitle.textContent = post.title;
+      const modalBody = elements.modal.querySelector('.modal-body');
+      modalBody.textContent = post.description;
+      const a = elements.modal.querySelector('a');
+      a.setAttribute('href', post.link);
+    }
+  });
+};
+
+const renderLink = (watchedState, elements, value) => {
+  watchedState.posts.forEach(({ id }) => {
+    value.forEach((num) => {
+      if (id === num) {
+        const post = elements.posts.querySelector(`a[data-id='${num}']`);
+        post.classList.remove('fw-bold');
+        post.classList.add('fw-normal', 'link-secondary');
+      }
+    });
+  });
+};
+
 const render = (watchedState, elements, i18nInstance) => (path, value) => {
   switch (path) {
     case 'formState':
@@ -124,11 +149,19 @@ const render = (watchedState, elements, i18nInstance) => (path, value) => {
       renderFeeds(elements, value, i18nInstance);
       break;
 
+    case 'uiState.selectedPosts':
+      renderLink(watchedState, elements, value);
+      break;
+
+    case 'uiState.selectedModal':
+      renderModal(watchedState, elements, value);
+      break;
+
     case 'urls':
       break;
 
     default:
-      throw new Error('state undefined', path);
+      throw new Error('Unknown state!', path);
   }
 };
 

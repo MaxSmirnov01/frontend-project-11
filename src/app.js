@@ -20,7 +20,9 @@ const schema = (urls) => yup.string().trim().url().notOneOf(urls);
 
 const makeRequest = (url) => {
   const link = `https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`;
-  return axios.get(link);
+  return axios.get(link).catch(() => {
+    throw new Error('network error');
+  });
 };
 
 /* eslint-disable */
@@ -57,6 +59,10 @@ const app = () => {
         posts: [],
         feeds: [],
         urls: [],
+        uiState: {
+          selectedPosts: [],
+          selectedModal: null,
+        },
       };
 
       const elements = {
@@ -66,6 +72,7 @@ const app = () => {
         feedback: document.querySelector('.feedback'),
         posts: document.querySelector('.posts'),
         feeds: document.querySelector('.feeds'),
+        modal: document.querySelector('.modal'),
       };
 
       const watchedState = onChange(state, render(state, elements, i18nInstance));
@@ -96,11 +103,19 @@ const app = () => {
           .catch((error) => {
             if (error.message === 'parser error') {
               watchedState.error = 'notRSS';
+            }
+            if (error.message === 'network error') {
+              watchedState.error = 'networkError';
             } else {
               watchedState.error = error.message;
             }
             watchedState.formState = 'error';
           });
+      });
+      elements.posts.addEventListener('click', (e) => {
+        const { id } = e.target.dataset;
+        watchedState.uiState.selectedPosts.push(id);
+        watchedState.uiState.selectedModal = id;
       });
     })
     .catch(() => {
