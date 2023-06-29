@@ -38,7 +38,8 @@ const updatePosts = (watchedState, feedId) => {
       })
       .catch((er) => console.log(er));
   });
-  Promise.all(promises).finally(() => setTimeout(() => updatePosts(watchedState, feedId), 5000));
+  const interval = 5000;
+  Promise.all(promises).finally(() => setTimeout(() => updatePosts(watchedState, feedId), interval));
 };
 /* eslint-enable */
 
@@ -76,29 +77,29 @@ const app = () => {
       };
 
       const watchedState = onChange(state, render(state, elements, i18nInstance));
+      let feedId;
 
       elements.form.addEventListener('submit', (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
         const url = formData.get('url');
+        watchedState.formState = 'processing';
 
         schema(watchedState.urls)
           .validate(url)
           .then(() => {
-            watchedState.urls.push(url);
             watchedState.error = '';
-            watchedState.formState = 'processing';
             return makeRequest(url);
           })
           .then((response) => {
             const { feed, posts } = parse(response.data.contents);
             feed.id = _.uniqueId();
-            const feedId = feed.id;
+            feedId = feed.id;
             const postsId = posts.map((post) => ({ ...post, feedId, id: _.uniqueId() }));
             watchedState.feeds.push(feed);
             watchedState.posts.push(...postsId);
+            watchedState.urls.push(url);
             watchedState.formState = 'finished';
-            updatePosts(watchedState, feedId);
           })
           .catch((error) => {
             switch (error.message) {
@@ -123,6 +124,7 @@ const app = () => {
           watchedState.uiState.selectedModal = id;
         }
       });
+      updatePosts(watchedState, feedId);
     })
     .catch(() => {
       throw new Error();

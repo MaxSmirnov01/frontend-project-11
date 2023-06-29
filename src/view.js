@@ -56,11 +56,6 @@ const renderPosts = (watchedState, elements, value, i18nInstance) => {
     const a = document.createElement('a');
     a.setAttribute('href', post.link);
     a.setAttribute('data-id', post.id);
-    a.classList.add('fw-bold');
-    a.setAttribute('target', '_blank');
-    a.setAttribute('rel', 'noopener noreferrer');
-    a.textContent = post.title;
-
     if (watchedState.uiState.selectedPosts.includes(post.id)) {
       a.classList.remove('fw-bold');
       a.classList.add('fw-normal', 'link-secondary');
@@ -68,6 +63,9 @@ const renderPosts = (watchedState, elements, value, i18nInstance) => {
       a.classList.add('fw-bold');
       a.classList.remove('fw-normal', 'link-secondary');
     }
+    a.setAttribute('target', '_blank');
+    a.setAttribute('rel', 'noopener noreferrer');
+    a.textContent = post.title;
 
     const button = document.createElement('button');
     button.setAttribute('type', 'button');
@@ -116,16 +114,13 @@ const renderFeeds = (elements, value, i18nInstance) => {
 };
 
 const renderModal = (watchedState, elements, value) => {
-  watchedState.posts.forEach((post) => {
-    if (post.id === value) {
-      const modalTitle = elements.modal.querySelector('.modal-title');
-      modalTitle.textContent = post.title;
-      const modalBody = elements.modal.querySelector('.modal-body');
-      modalBody.textContent = post.description;
-      const a = elements.modal.querySelector('a');
-      a.setAttribute('href', post.link);
-    }
-  });
+  const post = watchedState.posts.find((el) => el.id === value);
+  const modalTitle = elements.modal.querySelector('.modal-title');
+  modalTitle.textContent = post.title;
+  const modalBody = elements.modal.querySelector('.modal-body');
+  modalBody.textContent = post.description;
+  const a = elements.modal.querySelector('a');
+  a.setAttribute('href', post.link);
 };
 
 const renderLink = (elements, value) => {
