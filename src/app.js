@@ -36,7 +36,6 @@ const updatePosts = (watchedState) => {
         const newPostsId = newPosts.flatMap((newPost) => {
           return watchedState.feeds.map((feed) => ({ ...newPost, feedId: feed.id, id: _.uniqueId() }));
         });
-        console.log(newPostsId);
         watchedState.posts.push(...newPostsId);
       })
       .catch((er) => console.log(er));

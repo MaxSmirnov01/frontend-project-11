@@ -55,9 +55,7 @@ const renderPosts = (watchedState, elements, value, i18nInstance) => {
     const a = document.createElement('a');
     a.setAttribute('href', post.link);
     a.setAttribute('data-id', post.id);
-    watchedState.uiState.selectedPosts.includes(post.id)
-      ? a.classList.add('fw-normal', 'link-secondary')
-      : a.classList.add('fw-bold');
+    a.classList.add(watchedState.uiState.selectedPosts.includes(post.id) ? ('fw-normal', 'link-secondary') : 'fw-bold');
     a.setAttribute('target', '_blank');
     a.setAttribute('rel', 'noopener noreferrer');
     a.textContent = post.title;
