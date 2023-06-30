@@ -26,20 +26,23 @@ const makeRequest = (url) => {
 };
 
 /* eslint-disable */
-const updatePosts = (watchedState, feedId) => {
+const updatePosts = (watchedState) => {
   const promises = watchedState.urls.map((url) => {
     return makeRequest(url)
       .then((response) => {
         const { posts } = parse(response.data.contents);
         const postsLink = watchedState.posts.map((post) => post.link);
         const newPosts = posts.filter(({ link }) => !postsLink.includes(link));
-        const newPostsId = newPosts.map((newPost) => ({ ...newPost, feedId, id: _.uniqueId() }));
+        const newPostsId = newPosts.flatMap((newPost) => {
+          return watchedState.feeds.map((feed) => ({ ...newPost, feedId: feed.id, id: _.uniqueId() }));
+        });
+        console.log(newPostsId);
         watchedState.posts.push(...newPostsId);
       })
       .catch((er) => console.log(er));
   });
   const interval = 5000;
-  Promise.all(promises).finally(() => setTimeout(() => updatePosts(watchedState, feedId), interval));
+  Promise.all(promises).finally(() => setTimeout(() => updatePosts(watchedState), interval));
 };
 /* eslint-enable */
 
@@ -77,7 +80,6 @@ const app = () => {
       };
 
       const watchedState = onChange(state, render(state, elements, i18nInstance));
-      let feedId;
 
       elements.form.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -94,8 +96,7 @@ const app = () => {
           .then((response) => {
             const { feed, posts } = parse(response.data.contents);
             feed.id = _.uniqueId();
-            feedId = feed.id;
-            const postsId = posts.map((post) => ({ ...post, feedId, id: _.uniqueId() }));
+            const postsId = posts.map((post) => ({ ...post, feedId: feed.id, id: _.uniqueId() }));
             watchedState.feeds.push(feed);
             watchedState.posts.push(...postsId);
             watchedState.urls.push(url);
@@ -124,10 +125,10 @@ const app = () => {
           watchedState.uiState.selectedModal = id;
         }
       });
-      updatePosts(watchedState, feedId);
+      updatePosts(watchedState);
     })
-    .catch(() => {
-      throw new Error();
+    .catch((er) => {
+      console.log(er);
     });
 };
 

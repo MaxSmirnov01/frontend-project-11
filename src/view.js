@@ -1,4 +1,3 @@
-/* eslint no-param-reassign: ["error", { "props": false }] */
 const renderError = (elements, value, i18nInstance) => {
   if (value !== '') {
     elements.feedback.textContent = i18nInstance.t(`errors.${value}`);
@@ -56,13 +55,9 @@ const renderPosts = (watchedState, elements, value, i18nInstance) => {
     const a = document.createElement('a');
     a.setAttribute('href', post.link);
     a.setAttribute('data-id', post.id);
-    if (watchedState.uiState.selectedPosts.includes(post.id)) {
-      a.classList.remove('fw-bold');
-      a.classList.add('fw-normal', 'link-secondary');
-    } else {
-      a.classList.add('fw-bold');
-      a.classList.remove('fw-normal', 'link-secondary');
-    }
+    watchedState.uiState.selectedPosts.includes(post.id)
+      ? a.classList.add('fw-normal', 'link-secondary')
+      : a.classList.add('fw-bold');
     a.setAttribute('target', '_blank');
     a.setAttribute('rel', 'noopener noreferrer');
     a.textContent = post.title;
